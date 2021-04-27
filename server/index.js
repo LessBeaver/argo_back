@@ -1,20 +1,24 @@
 require('dotenv').config();
 const express = require("express");
+const cors = require("cors");
 
-const PORT = 3001
+const PORT = 3001;
 const app = express();
 
 const connection = require('../db');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
 
-app.post('/', (req, res) => {
+app.post('/argo', (req, res) => {
     const { body: formData } = req;
-    const query = 'INSERT INTO User SET ?';
-    connection.query(query, formData, (error, results) => {
-        try {
+    console.log(formData)
+    try {
+        const query = 'INSERT INTO User SET ?';
+        connection.query(query, formData, (error, results) => {
             if (error) {
+                console.log(error)
                 res.status(500).json({
                     error: 'error',
                     errorMessage: 'Our server encountered an error performing the request',
@@ -25,6 +29,7 @@ app.post('/', (req, res) => {
                     ...formData,
                 });
             };
+            })
         } catch(err) {
             console.log(err)
             res.status(500).json({
@@ -32,31 +37,9 @@ app.post('/', (req, res) => {
                 errorMessage: 'Difficulté rencontrée lors de l\'ajout d\'un nouveau membre',
             });
         };
-    })
-    // try {
-    //     connection.query('INSERT INTO User SET ?', formData, (error, results) => {
-    //         if (error) {
-    //             res.status(500).json({
-    //                 error: 'error',
-    //                 errorMessage: 'Our server encountered an error performing the request',
-    //             });
-    //         } else {
-    //             res.status(201).json({
-    //                 id: results.insertId,
-    //                 ...formData,
-    //             });
-    //         };
-    //     });
-    // } catch(err) {
-    //     console.log(err)
-    //     res.status(500).json({
-    //         status: 'error',
-    //         errorMessage: 'Difficulté rencontrée lors de l\'ajout d\'un nouveau membre',
-    //     });
-    // };
 });
 
-app.get('/', (req, res) => {
+app.get('/argo/membre', (req, res) => {
     try {
         connection.query('SELECT id, name FROM User', (error, results) => {
             if (error) {
@@ -77,16 +60,11 @@ app.get('/', (req, res) => {
     };
 });
 
-app.get('/', (req, res) => {
+app.get('/argo/membre', (req, res) => {
     connection.query('SELECT id, name FROM User', (error, results) => {
         res.status(200).json(results);
     });
 });
-
-// app.listen(PORT, () => {
-//     console.log(`Server listening on ${PORT}`);
-// });
-
 
 const server = app.listen(PORT, (err) => {
     if (err) {
@@ -95,4 +73,4 @@ const server = app.listen(PORT, (err) => {
     console.log(`🌍 Server is running on port ${PORT}`);
   });
   
-  module.exports = server;
+module.exports = server;
